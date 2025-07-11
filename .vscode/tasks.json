@@ -8,6 +8,7 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "../include/project/*.h",
+                "../include/dockerfile/*.h",
                 "../include/nlohmann/*.hpp",
                 "*.cpp",
                 "-o",

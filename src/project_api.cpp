@@ -42,6 +42,8 @@ void ProjectApi::markAsInitialized()
     nlohmann::json projectJson = { { "projectPath", projectFullPath },
                                    { "projectName", this->projectName },
                                    { "projectType", this->projectType },
+                                   { "projectEntrypoint", "" },
+                                   { "dotnetVersion", "" },
                                    { "createdAt", currentDate },
                                    { "lockfilePath", lockFilePath } };
     std::ofstream lockFile(lockFilePath);
