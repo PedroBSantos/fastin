@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    ProjectApi projectApi("/home/pedro/dev", "Initializer");
+    ProjectApi projectApi("/home/pedro/dev", "Initializer", CONSOLE);
     projectApi.initialize();
     projectApi.addLayersStructure();
     projectApi.createReferenceBetweenFolders();
