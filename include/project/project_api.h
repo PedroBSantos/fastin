@@ -13,13 +13,21 @@ using namespace std;
 using namespace nlohmann;
 namespace fs = std::filesystem;
 
+enum ProjectType 
+{
+    WEBAPI,
+    WORKER,
+    CONSOLE
+};
+
 class ProjectApi
 {
 private:
     std::string projectPath;
     std::string projectName;
+    ProjectType projectType;
 public:
-    ProjectApi(std::string projectPath, std::string projectName);
+    ProjectApi(std::string projectPath, std::string projectName, ProjectType projectType);
     ProjectApi(const ProjectApi& projectApi);
     virtual ~ProjectApi() = default;
     void addLayersStructure();
