@@ -31,17 +31,19 @@ void ProjectApi::initialize()
 void ProjectApi::markAsInitialized()
 {
     std::string projectFullPath = this->projectPath + "/" + this->projectName;
-    std::string createFastInLockCommand = "touch " + projectFullPath + "/fastin.lock";
-    std::system(createFastInLockCommand.c_str());
     time_t timestamp;
     time(&timestamp);
     struct tm datetime = *localtime(&timestamp);
     char currentDate[90];
     strftime(currentDate, 90, "%Y-%m-%d %H:%M:%S", &datetime);
-    std::string fastInLockFileContent = "[project] = " + this->projectName + "\n[project_path] = " + projectFullPath + "\n[created_at] = " + currentDate + "\n";
-    std::ofstream outfile;
-    outfile.open(projectFullPath + "/fastin.lock", std::ios_base::app);
-    outfile << fastInLockFileContent;
+    std::string lockFilePath = projectFullPath + "/fastin.json";
+    nlohmann::json projectJson = { { "projectPath", projectFullPath },
+                                   { "projectName", this->projectName },
+                                   { "createdAt", currentDate },
+                                   { "lockfilePath", lockFilePath} };
+    std::ofstream lockFile(lockFilePath);
+    lockFile << projectJson.dump(4);
+    lockFile.close();
 }
 
 void ProjectApi::addLayersStructure()

@@ -7,8 +7,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include "../nlohmann/json.hpp"
 
 using namespace std;
+using namespace nlohmann;
 namespace fs = std::filesystem;
 
 class ProjectApi
