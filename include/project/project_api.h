@@ -7,8 +7,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
-#include "../nlohmann/json.hpp"
-#include "../pugixml/pugixml.hpp"
+#include "../../lib/nlohmann/json.hpp"
+#include "../../lib/pugixml/pugixml.hpp"
 
 using namespace std;
 using namespace nlohmann;

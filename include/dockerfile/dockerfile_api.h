@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <ranges>
-#include <algorithm>
 #include "../project/project.h"
 
 using namespace std;
