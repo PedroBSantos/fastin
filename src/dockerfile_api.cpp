@@ -12,11 +12,11 @@ DockerFileApi::DockerFileApi(const DockerFileApi& dockerfileApi)
 
 void DockerFileApi::createDockerFile()
 {
-    if (!fs::exists("fastin.json"))
-    {
-        spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
-        return;
-    }
+    // if (!fs::exists("fastin.json"))
+    // {
+    //     spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
+    //     return;
+    // }
     if (this->project.isConsole())
     {
         spdlog::error("Não é possível gerar o arquivo Dockerfile para projetos do tipo CONSOLE");

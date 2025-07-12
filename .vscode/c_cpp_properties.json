@@ -4,7 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/pedro/dev/projects/c-c++/spdlog/include"
+                "${SPDLOG_HOME}/include",     
+                "${NLOHMANN_HOME}/include/",
+                "${PUGIXML_HOME}/src"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

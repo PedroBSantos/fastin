@@ -3,7 +3,7 @@
 #define PROJECT_H
 
 #include <string>
-#include "../../lib/nlohmann/json.hpp"
+#include "nlohmann/json.hpp"
 #include "project_api.h"
 #include "spdlog/spdlog.h"
 
