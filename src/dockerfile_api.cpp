@@ -13,9 +13,16 @@ DockerFileApi::DockerFileApi(const DockerFileApi& dockerfileApi)
 void DockerFileApi::createDockerFile()
 {
     if (!fs::exists("fastin.json"))
+    {
+        spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
         return;
+    }
     if (this->project.isConsole())
+    {
+        spdlog::error("Não é possível gerar o arquivo Dockerfile para projetos do tipo CONSOLE");
         return;
+    }
+    spdlog::info("Gerando o Dockerfile");
     std::string baseStage = this->createBaseStage();
     std::string buildStage = this->createBuildStage();
     std::string publishStage = this->createPublishStage();
@@ -24,10 +31,12 @@ void DockerFileApi::createDockerFile()
     std::ofstream dockerfile("Dockerfile");
     dockerfile << dockerfileContent;
     dockerfile.close();
+    spdlog::info("Geração do Dockerfile finalizada");
 }
 
 std::string DockerFileApi::createBaseStage()
 {
+    spdlog::info("Criando base stage");
     std::string runtimeVersion = this->project.getRuntimeVersion();
     std::string imageRuntime = this->project.isWebApi() ? "aspnet:" : "runtime:";
     std::string fromCommand = "FROM mcr.microsoft.com/dotnet/" + imageRuntime + runtimeVersion + " AS base\n";
@@ -40,6 +49,7 @@ std::string DockerFileApi::createBaseStage()
 
 std::string DockerFileApi::createBuildStage()
 {
+    spdlog::info("Criando build stage");
     std::string runtimeVersion = this->project.getRuntimeVersion();
     std::string projectEntrypoint = this->project.getEntrypoint();
     std::string fromCommand = "FROM mcr.microsoft.com/dotnet/sdk:" + runtimeVersion + " AS build\n";
@@ -64,6 +74,7 @@ std::string DockerFileApi::createBuildStage()
 
 std::string DockerFileApi::createPublishStage()
 {
+    spdlog::info("Criando publish stage");
     std::string projectEntrypoint = this->project.getEntrypoint();
     std::string fromCommand = "FROM build AS publish\n";
     std::string runCommand = "RUN dotnet publish ";
@@ -78,6 +89,7 @@ std::string DockerFileApi::createPublishStage()
 
 std::string DockerFileApi::createFinalStage()
 {
+    spdlog::info("Criando final stage");
     std::string projectEntrypoint = this->project.getEntrypoint();
     std::string fromCommand = "FROM base AS final\n";
     std::string workdirCommand = "WORKDIR /app\n";
