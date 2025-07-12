@@ -8,9 +8,11 @@
 #include <ctime>
 #include <fstream>
 #include "../nlohmann/json.hpp"
+#include "../pugixml/pugixml.hpp"
 
 using namespace std;
 using namespace nlohmann;
+using namespace pugi;
 namespace fs = std::filesystem;
 
 enum ProjectType 

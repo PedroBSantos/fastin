@@ -8,7 +8,10 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "../include/project/*.h",
+                "../include/dockerfile/*.h",
                 "../include/nlohmann/*.hpp",
+                "../include/pugixml/*.hpp",
+                "../include/pugixml/*.cpp",
                 "*.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
