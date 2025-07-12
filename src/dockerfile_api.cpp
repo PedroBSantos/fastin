@@ -14,6 +14,8 @@ void DockerFileApi::createDockerFile()
 {
     if (!fs::exists("fastin.json"))
         return;
+    if (this->project.isConsole())
+        return;
     std::string baseStage = this->createBaseStage();
     std::string buildStage = this->createBuildStage();
     std::string publishStage = this->createPublishStage();
