@@ -25,6 +25,7 @@ Project::Project(const Project& project)
 
 Project Project::loadFrom(std::string fastinFile)
 {
+    spdlog::info("Carregando dados do projeto a partir do arquivo " + fastinFile);
     std::ifstream file(fastinFile);
     nlohmann::json projectJson;
     file >> projectJson;
@@ -34,6 +35,7 @@ Project Project::loadFrom(std::string fastinFile)
     std::string projectName = projectJson["projectName"];
     ProjectType projectType = (ProjectType) projectJson["projectType"];
     Project project(createdAt, dotnetVersion, projectEntrypoint, projectName, projectType);
+    spdlog::info("Dados do projeto carregados com sucesso");
     return project;
 }
 

@@ -17,12 +17,22 @@ ProjectApi::ProjectApi(const ProjectApi& projectApi)
 void ProjectApi::initialize()
 {
     if (!fs::exists(this->projectPath))
+    {
+        spdlog::error("O diretório " + this->projectPath + " não existe");
         return;
+    }
     if (this->projectName.empty())
+    {
+        spdlog::error("O nome do projeto não pode ser vazio");
         return;
+    }
     std::string projectFullPath = this->projectPath + "/" + this->projectName;
     if (fs::exists(projectFullPath))
+    {
+        spdlog::error("O diretório " + projectFullPath + " já existe");
         return;
+    }
+    spdlog::info("Criando estrutura básica do projeto");
     fs::create_directories(projectFullPath);
     fs::create_directories(projectFullPath + "/src");
     fs::create_directories(projectFullPath + "/tests");
@@ -32,6 +42,7 @@ void ProjectApi::initialize()
 
 void ProjectApi::markAsInitialized()
 {
+    spdlog::info("Gerando o arquivo fastin.json");
     std::string projectFullPath = this->projectPath + "/" + this->projectName;
     time_t timestamp;
     time(&timestamp);
@@ -67,10 +78,12 @@ void ProjectApi::markAsInitialized()
     std::ofstream lockFile(lockFilePath);
     lockFile << projectJson.dump(4);
     lockFile.close();
+    spdlog::info("Arquivo fastin.json gerado com sucesso");
 }
 
 void ProjectApi::addLayersStructure()
 {
+    spdlog::info("Adicionando o padrão em camadas");
     std::string projectFullPath = this->projectPath + "/" + this->projectName;
     std::string projectSrcPath = this->projectPath + "/" + this->projectName + "/src/";
     std::string projectTestsPath = this->projectPath + "/" + this->projectName + "/tests/";
@@ -109,6 +122,7 @@ void ProjectApi::addLayersStructure()
 
 void ProjectApi::createReferenceBetweenFolders()
 {
+    spdlog::info("Realizando o link entre as camadas do projeto");
     std::string projectFullPath = this->projectPath + "/" + this->projectName;
     std::string projectCoreFolderPath = projectFullPath + "/src/" + this->projectName + ".Core";
     std::string projectInfraFolderPath = projectFullPath + "/src/" + this->projectName + ".Infra";

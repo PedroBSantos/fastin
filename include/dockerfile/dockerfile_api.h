@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include "spdlog/spdlog.h"
 #include "../project/project.h"
 
 using namespace std;

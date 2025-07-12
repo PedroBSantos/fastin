@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include "spdlog/spdlog.h"
 #include "../../lib/nlohmann/json.hpp"
 #include "../../lib/pugixml/pugixml.hpp"
 

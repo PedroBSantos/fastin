@@ -13,6 +13,8 @@
                 "../lib/pugixml/*.hpp",
                 "../lib/pugixml/*.cpp",
                 "*.cpp",
+                "-I/home/pedro/dev/projects/c-c++/spdlog/include",
+                "-L/home/pedro/dev/projects/c-c++/spdlog/build",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

@@ -5,6 +5,7 @@
 #include <string>
 #include "../../lib/nlohmann/json.hpp"
 #include "project_api.h"
+#include "spdlog/spdlog.h"
 
 using namespace std;
 using namespace nlohmann;
