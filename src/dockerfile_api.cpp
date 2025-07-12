@@ -29,7 +29,8 @@ void DockerFileApi::createDockerFile()
 std::string DockerFileApi::createBaseStage()
 {
     std::string runtimeVersion = this->project.getRuntimeVersion();
-    std::string fromCommand = "FROM mcr.microsoft.com/dotnet/aspnet:" + runtimeVersion + " AS base\n";
+    std::string imageRuntime = this->project.isWebApi() ? "aspnet:" : "runtime:";
+    std::string fromCommand = "FROM mcr.microsoft.com/dotnet/" + imageRuntime + runtimeVersion + " AS base\n";
     std::string workdirCommand = "WORKDIR /app\n";
     std::string exposeCommand = "EXPOSE 8080\n";
     std::string envCommand = "ENV ASPNETCORE_URLS=http://+:8080\n\n";
