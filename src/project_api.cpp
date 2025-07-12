@@ -39,13 +39,31 @@ void ProjectApi::markAsInitialized()
     char currentDate[90];
     strftime(currentDate, 90, "%Y-%m-%d %H:%M:%S", &datetime);
     std::string lockFilePath = projectFullPath + "/fastin.json";
-    nlohmann::json projectJson = { { "projectPath", projectFullPath },
-                                   { "projectName", this->projectName },
+    std::string projectEntrypoint = "";
+    switch (this->projectType)
+    {
+    case WEBAPI:
+        projectEntrypoint = this->projectName + ".WebApi";
+        break;
+    case WORKER:
+        projectEntrypoint = this->projectName + ".Worker";
+        break;
+    default:
+        projectEntrypoint = this->projectName + ".Console";
+        break;
+    }
+    std::string projectEntrypointCsProjPath = projectFullPath + "/src/" + projectEntrypoint + "/" + projectEntrypoint + ".csproj";
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(projectEntrypointCsProjPath.c_str());
+    pugi::xpath_node targetFrameworkNode = doc.select_node("//PropertyGroup/TargetFramework");
+    std::string targetFramework = targetFrameworkNode.node().child_value();
+    std::string dotnetVersion = targetFramework.substr(3, 5);
+
+    nlohmann::json projectJson = { { "projectName", this->projectName },
                                    { "projectType", this->projectType },
-                                   { "projectEntrypoint", "" },
-                                   { "dotnetVersion", "" },
-                                   { "createdAt", currentDate },
-                                   { "lockfilePath", lockFilePath } };
+                                   { "projectEntrypoint", projectEntrypoint },
+                                   { "dotnetVersion", dotnetVersion },
+                                   { "createdAt", currentDate } };
     std::ofstream lockFile(lockFilePath);
     lockFile << projectJson.dump(4);
     lockFile.close();
