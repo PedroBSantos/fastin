@@ -7,16 +7,15 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "../include/project/*.h",
-                "../include/dockerfile/*.h",
-                "../lib/nlohmann/*.hpp",
-                "../lib/pugixml/*.hpp",
-                "../lib/pugixml/*.cpp",
                 "*.cpp",
-                "-I/home/pedro/dev/projects/c-c++/spdlog/include",
-                "-L/home/pedro/dev/projects/c-c++/spdlog/build",
+                "-I${SPDLOG_HOME}/include",
+                "-L${SPDLOG_HOME}/build",
+                "-I${PUGIXML_HOME}/src",
+                "-L${PUGIXML_HOME}/build",
+                "-I${NLOHMANN_HOME}/include",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-lpugixml"
             ],
             "options": {
                 "cwd": "${fileDirname}"

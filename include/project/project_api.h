@@ -8,8 +8,8 @@
 #include <ctime>
 #include <fstream>
 #include "spdlog/spdlog.h"
-#include "../../lib/nlohmann/json.hpp"
-#include "../../lib/pugixml/pugixml.hpp"
+#include "nlohmann/json.hpp"
+#include "pugixml.hpp"
 
 using namespace std;
 using namespace nlohmann;
