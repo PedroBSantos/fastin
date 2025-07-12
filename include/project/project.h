@@ -3,7 +3,7 @@
 #define PROJECT_H
 
 #include <string>
-#include "../nlohmann/json.hpp"
+#include "../../lib/nlohmann/json.hpp"
 #include "project_api.h"
 
 using namespace std;

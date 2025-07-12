@@ -9,9 +9,9 @@
                 "-g",
                 "../include/project/*.h",
                 "../include/dockerfile/*.h",
-                "../include/nlohmann/*.hpp",
-                "../include/pugixml/*.hpp",
-                "../include/pugixml/*.cpp",
+                "../lib/nlohmann/*.hpp",
+                "../lib/pugixml/*.hpp",
+                "../lib/pugixml/*.cpp",
                 "*.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
