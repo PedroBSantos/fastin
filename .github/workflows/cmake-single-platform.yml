@@ -42,18 +42,18 @@ jobs:
         cd build
         cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
 
-    - name: Add dependencies on path
+    - name: Replace dependencies path on CMakeLists file
       run: |
-        cd $HOME
-        SPDLOG_HOME="export SPDLOG_HOME=\"$HOME/libraries/spdlog\""
-        NLOHMANN_HOME="export NLOHMANN_HOME=\"$HOME/libraries/json\""
-        PUGIXML_HOME="export PUGIXML_HOME=\"$HOME/libraries/pugixml\""
-        CLI11_HOME="export CLI11_HOME=\"$HOME/libraries/CLI11\""
-        echo $SPDLOG_HOME >> .bashrc
-        echo $NLOHMANN_HOME >> .bashrc
-        echo $PUGIXML_HOME >> .bashrc
-        echo $CLI11_HOME >> .bashrc
-        cat .bashrc
+        cd ${{github.workspace}}
+        SPDLOG_HOME=$HOME/libraries/spdlog
+        NLOHMANN_HOME=$HOME/libraries/json
+        PUGIXML_HOME=$HOME/libraries/pugixml
+        CLI11_HOME=$HOME/libraries/CLI11
+        sed -i 's|$ENV{SPDLOG_HOME}|${SPDLOG_HOME}|g' CMakeLists.txt
+        sed -i 's|$ENV{NLOHMANN_HOME}|${NLOHMANN_HOME}|g' CMakeLists.txt
+        sed -i 's|$ENV{PUGIXML_HOME}|${PUGIXML_HOME}|g' CMakeLists.txt
+        sed -i 's|$ENV{CLI11_HOME}|${CLI11_HOME}|g' CMakeLists.txt
+        cat CMakeLists.txt
 
     - name: Build
       run: |
