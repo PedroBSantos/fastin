@@ -13,6 +13,7 @@
                 "-I${PUGIXML_HOME}/src",
                 "-L${PUGIXML_HOME}/build",
                 "-I${NLOHMANN_HOME}/include",
+                "-I${CLI11_HOME}/include",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lpugixml"

@@ -14,3 +14,5 @@ target_link_directories(fastin PRIVATE $ENV{PUGIXML_HOME}/build)
 target_link_libraries(fastin PRIVATE pugixml)
 
 target_include_directories(fastin PRIVATE $ENV{NLOHMANN_HOME}/include)
+
+target_include_directories(fastin PRIVATE $ENV{CLI11_HOME}/include)
