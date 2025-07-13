@@ -45,18 +45,18 @@ jobs:
     - name: Add dependencies on path
       run: |
         cd ~
-        SPDLOG_HOME="export SPDLOG_HOME="$HOME/libraries/spdlog""
-        NLOHMANN_HOME="export NLOHMANN_HOME="$HOME/libraries/json""
-        PUGIXML_HOME="export PUGIXML_HOME="$HOME/libraries/pugixml""
-        CLI11_HOME="export CLI11_HOME="$HOME/libraries/CLI11""
+        SPDLOG_HOME="export SPDLOG_HOME=\"$HOME/libraries/spdlog\""
+        NLOHMANN_HOME="export NLOHMANN_HOME=\"$HOME/libraries/json\""
+        PUGIXML_HOME="export PUGIXML_HOME=\"$HOME/libraries/pugixml\""
+        CLI11_HOME="export CLI11_HOME=\"$HOME/libraries/CLI11\""
         echo $SPDLOG_HOME >> .bashrc
         echo $NLOHMANN_HOME >> .bashrc
         echo $PUGIXML_HOME >> .bashrc
         echo $CLI11_HOME >> .bashrc
-        cat .bashrc
-    
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: make -f ${{github.workspace}}/build/Makefile
+      run: |
+        cd ${{github.workspace}}
+        mkdir build
+        cd build
+        cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
