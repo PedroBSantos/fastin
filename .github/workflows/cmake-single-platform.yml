@@ -17,7 +17,7 @@ jobs:
 
     - name: Get Dependencies
       run: |
-        cd ~
+        cd $HOME
         mkdir libraries
         cd libraries
         git clone --branch=v1.x https://github.com/gabime/spdlog.git
@@ -27,7 +27,7 @@ jobs:
 
     - name: Build spdlog dependency
       run: |
-        cd ~
+        cd $HOME
         cd libraries/spdlog
         mkdir build
         cd build
@@ -36,7 +36,7 @@ jobs:
 
     - name: Build pugixml dependency
       run: |
-        cd ~
+        cd $HOME
         cd libraries/pugixml
         mkdir build
         cd build
@@ -44,7 +44,7 @@ jobs:
 
     - name: Add dependencies on path
       run: |
-        cd ~
+        cd $HOME
         SPDLOG_HOME="export SPDLOG_HOME=\"$HOME/libraries/spdlog\""
         NLOHMANN_HOME="export NLOHMANN_HOME=\"$HOME/libraries/json\""
         PUGIXML_HOME="export PUGIXML_HOME=\"$HOME/libraries/pugixml\""
@@ -53,6 +53,7 @@ jobs:
         echo $NLOHMANN_HOME >> .bashrc
         echo $PUGIXML_HOME >> .bashrc
         echo $CLI11_HOME >> .bashrc
+        cat .bashrc
 
     - name: Build
       run: |
