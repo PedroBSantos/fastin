@@ -1,7 +1,7 @@
 #include <iostream>
 #include <map>
 #include "../include/project/project_api.h"
-#include "../include/dockerfile/dockerfile_api.h"
+#include "../include/docker/docker_api.h"
 #include "../include/project/project.h"
 #include "CLI/CLI.hpp"
 
@@ -19,6 +19,7 @@ int main(int argc, char const* argv[])
     std::string projectPath;
     std::string projectName;
     ProjectType projectType;
+    std::string dockerImageTag;
     initProject->add_option("-p,--path", projectPath, "Path em que o projeto será inicializado")
         ->required();
     initProject->add_option("-n,--name", projectName, "Nome do projeto")
@@ -39,12 +40,20 @@ int main(int argc, char const* argv[])
         projectApi.createReferenceBetweenFolders();
         projectApi.markAsInitialized();
         });
-    CLI::App* createDockerfile = app.add_subcommand("dockerfile", "Adiciona dockerfile ao projeto");
-    createDockerfile->callback([]() {
+    CLI::App* dockerApi = app.add_subcommand("docker", "Api Docker");
+    CLI::App* initDockerfile = dockerApi->add_subcommand("init-dockerfile", "Adiciona o dockerfile ao projeto");
+    initDockerfile->callback([]() {
         Project project = Project::loadFrom("./fastin.json");
-        DockerFileApi dockerfileApi(project);
-        dockerfileApi.createDockerFile();
+        DockerApi dockerApi(project);
+        dockerApi.createDockerfile();
         });
+    CLI::App* dockerBuildImage = dockerApi->add_subcommand("build-image", "Inicia o build da imagem docker");
+    dockerBuildImage->add_option("-i,--image-tag", dockerImageTag, "Tag da imagem após build");
+    dockerBuildImage->callback([&]() {
+        Project project = Project::loadFrom("./fastin.json");
+        DockerApi dockerApi(project);
+        dockerApi.buildImage(dockerImageTag);
+    });
     CLI11_PARSE(app, argc, argv);
     return 0;
 }

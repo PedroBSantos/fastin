@@ -1,16 +1,16 @@
-#include "../include/dockerfile/dockerfile_api.h"
+#include "../include/docker/docker_api.h"
 
-DockerFileApi::DockerFileApi(Project project)
+DockerApi::DockerApi(Project project)
 {
     this->project = project;
 }
 
-DockerFileApi::DockerFileApi(const DockerFileApi& dockerfileApi)
+DockerApi::DockerApi(const DockerApi& dockerApi)
 {
-    this->project = dockerfileApi.project;
+    this->project = dockerApi.project;
 }
 
-void DockerFileApi::createDockerFile()
+void DockerApi::createDockerfile()
 {
     if (!fs::exists("fastin.json"))
     {
@@ -34,7 +34,7 @@ void DockerFileApi::createDockerFile()
     spdlog::info("Geração do Dockerfile finalizada");
 }
 
-std::string DockerFileApi::createBaseStage()
+std::string DockerApi::createBaseStage()
 {
     spdlog::info("Criando base stage");
     std::string runtimeVersion = this->project.getRuntimeVersion();
@@ -47,7 +47,7 @@ std::string DockerFileApi::createBaseStage()
     return baseStageCommand;
 }
 
-std::string DockerFileApi::createBuildStage()
+std::string DockerApi::createBuildStage()
 {
     spdlog::info("Criando build stage");
     std::string runtimeVersion = this->project.getRuntimeVersion();
@@ -72,7 +72,7 @@ std::string DockerFileApi::createBuildStage()
     return buildStageCommand;
 }
 
-std::string DockerFileApi::createPublishStage()
+std::string DockerApi::createPublishStage()
 {
     spdlog::info("Criando publish stage");
     std::string projectEntrypoint = this->project.getEntrypoint();
@@ -87,7 +87,7 @@ std::string DockerFileApi::createPublishStage()
     return publishStageCommand;
 }
 
-std::string DockerFileApi::createFinalStage()
+std::string DockerApi::createFinalStage()
 {
     spdlog::info("Criando final stage");
     std::string projectEntrypoint = this->project.getEntrypoint();
@@ -102,4 +102,18 @@ std::string DockerFileApi::createFinalStage()
                                          .append("]\n");
     std::string finalStageCommand = fromCommand + workdirCommand + copyCommand + entrypointCommand;
     return finalStageCommand;
+}
+
+void DockerApi::buildImage(std::string imageTag)
+{
+    if (imageTag.empty())
+    {
+        spdlog::info("Tag dá imagem não foi informada. Será usado o nome do projeto como tag");
+        imageTag = this->project.getName();
+    }
+    std::transform(imageTag.begin(), imageTag.end(), imageTag.begin(), ::tolower);
+    spdlog::info("Realizando o build da imagem com a tag " + imageTag);
+    std::string buildImageCommand = "docker build -f \"Dockerfile\" -t " + imageTag + " .";
+    std::system(buildImageCommand.c_str());
+    spdlog::info("Build da imagem finalizado");
 }
