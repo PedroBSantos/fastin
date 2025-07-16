@@ -47,13 +47,6 @@ int main(int argc, char const* argv[])
         DockerApi dockerApi(project);
         dockerApi.createDockerfile();
         });
-    CLI::App* dockerBuildImage = dockerApi->add_subcommand("build-image", "Inicia o build da imagem docker");
-    dockerBuildImage->add_option("-i,--image-tag", dockerImageTag, "Tag da imagem após build");
-    dockerBuildImage->callback([&]() {
-        Project project = Project::loadFrom("./fastin.json");
-        DockerApi dockerApi(project);
-        dockerApi.buildImage(dockerImageTag);
-    });
     CLI11_PARSE(app, argc, argv);
     return 0;
 }
