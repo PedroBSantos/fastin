@@ -26,7 +26,6 @@ public:
     DockerApi(const DockerApi& dockerApi);
     virtual ~DockerApi() = default;
     void createDockerfile();
-    void buildImage(std::string imageTag);
 };
 
 #endif

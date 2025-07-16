@@ -103,17 +103,3 @@ std::string DockerApi::createFinalStage()
     std::string finalStageCommand = fromCommand + workdirCommand + copyCommand + entrypointCommand;
     return finalStageCommand;
 }
-
-void DockerApi::buildImage(std::string imageTag)
-{
-    if (imageTag.empty())
-    {
-        spdlog::info("Tag dá imagem não foi informada. Será usado o nome do projeto como tag");
-        imageTag = this->project.getName();
-    }
-    std::transform(imageTag.begin(), imageTag.end(), imageTag.begin(), ::tolower);
-    spdlog::info("Realizando o build da imagem com a tag " + imageTag);
-    std::string buildImageCommand = "docker build -f \"Dockerfile\" -t " + imageTag + " .";
-    std::system(buildImageCommand.c_str());
-    spdlog::info("Build da imagem finalizado");
-}
