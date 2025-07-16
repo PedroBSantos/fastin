@@ -1,7 +1,7 @@
 #include <iostream>
 #include <map>
 #include "../include/project/project_api.h"
-#include "../include/dockerfile/dockerfile_api.h"
+#include "../include/docker/docker_api.h"
 #include "../include/project/project.h"
 #include "CLI/CLI.hpp"
 
@@ -42,8 +42,8 @@ int main(int argc, char const* argv[])
     CLI::App* createDockerfile = app.add_subcommand("dockerfile", "Adiciona dockerfile ao projeto");
     createDockerfile->callback([]() {
         Project project = Project::loadFrom("./fastin.json");
-        DockerFileApi dockerfileApi(project);
-        dockerfileApi.createDockerFile();
+        DockerApi dockerApi(project);
+        dockerApi.createDockerfile();
         });
     CLI11_PARSE(app, argc, argv);
     return 0;
