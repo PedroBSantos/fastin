@@ -39,8 +39,9 @@ int main(int argc, char const* argv[])
         projectApi.createReferenceBetweenFolders();
         projectApi.markAsInitialized();
         });
-    CLI::App* createDockerfile = app.add_subcommand("dockerfile", "Adiciona dockerfile ao projeto");
-    createDockerfile->callback([]() {
+    CLI::App* dockerApi = app.add_subcommand("docker", "Api Docker");
+    CLI::App* initDockerfile = dockerApi->add_subcommand("init-dockerfile", "Adiciona o dockerfile ao projeto");
+    initDockerfile->callback([]() {
         Project project = Project::loadFrom("./fastin.json");
         DockerApi dockerApi(project);
         dockerApi.createDockerfile();
