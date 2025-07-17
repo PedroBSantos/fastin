@@ -12,9 +12,6 @@
 #include "pugixml.hpp"
 #include "project.h"
 
-using namespace std;
-using namespace nlohmann;
-using namespace pugi;
 namespace fs = std::filesystem;
 
 namespace project
