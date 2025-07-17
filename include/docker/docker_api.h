@@ -9,7 +9,6 @@
 #include "spdlog/spdlog.h"
 #include "../project/project.h"
 
-using namespace std;
 namespace fs = std::filesystem;
 
 namespace docker

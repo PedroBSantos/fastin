@@ -7,9 +7,6 @@
 #include "spdlog/spdlog.h"
 #include <fstream>
 
-using namespace std;
-using namespace nlohmann;
-
 namespace project
 {
     enum ProjectType
