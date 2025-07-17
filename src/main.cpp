@@ -5,13 +5,13 @@
 #include "../include/project/project.h"
 #include "CLI/CLI.hpp"
 
-#define FASTIN_VERSION "1.0.0"
+#define FASTIN_VERSION "2.0.0"
 
 using namespace std;
 
 int main(int argc, char const* argv[])
 {
-    CLI::App app("Fastin fast inicialization");
+    CLI::App app("Fastin fast .NET CORE project's initialization");
     app.set_version_flag("--version", std::string(FASTIN_VERSION));
     app.set_help_flag("");
     app.set_help_all_flag("-h, --help");
