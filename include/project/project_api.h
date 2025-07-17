@@ -10,33 +10,30 @@
 #include "spdlog/spdlog.h"
 #include "nlohmann/json.hpp"
 #include "pugixml.hpp"
+#include "project.h"
 
 using namespace std;
 using namespace nlohmann;
 using namespace pugi;
 namespace fs = std::filesystem;
 
-enum ProjectType 
+namespace project
 {
-    WEBAPI,
-    WORKER,
-    CONSOLE
-};
-
-class ProjectApi
-{
-private:
-    std::string projectPath;
-    std::string projectName;
-    ProjectType projectType;
-public:
-    ProjectApi(std::string projectPath, std::string projectName, ProjectType projectType);
-    ProjectApi(const ProjectApi& projectApi);
-    virtual ~ProjectApi() = default;
-    void addLayersStructure();
-    void initialize();
-    void createReferenceBetweenFolders();
-    void markAsInitialized();
+    class ProjectApi
+    {
+    private:
+        std::string projectPath;
+        std::string projectName;
+        ProjectType projectType;
+    public:
+        ProjectApi(std::string projectPath, std::string projectName, ProjectType projectType);
+        ProjectApi(const ProjectApi& projectApi);
+        virtual ~ProjectApi() = default;
+        void addLayersStructure();
+        void initialize();
+        void createReferenceBetweenFolders();
+        void markAsInitialized();
+    };
 };
 
 #endif

@@ -1,6 +1,8 @@
 #include "../include/docker/docker_api.h"
 
-DockerApi::DockerApi(Project project)
+using namespace docker;
+
+DockerApi::DockerApi(project::Project project)
 {
     this->project = project;
 }
