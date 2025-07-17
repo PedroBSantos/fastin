@@ -22,6 +22,11 @@ void DockerApi::createDockerfile()
         spdlog::error("Não é possível gerar o arquivo Dockerfile para projetos do tipo CONSOLE");
         return;
     }
+    if (fs::exists("Dockerfile"))
+    {
+        spdlog::error("O arquivo Dockerfile já existe no diretório atual");
+        return;
+    }
     spdlog::info("Gerando o Dockerfile");
     std::string baseStage = this->createBaseStage();
     std::string buildStage = this->createBuildStage();
