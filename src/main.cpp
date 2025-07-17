@@ -7,8 +7,6 @@
 
 #define FASTIN_VERSION "2.0.0"
 
-using namespace std;
-
 int main(int argc, char const* argv[])
 {
     CLI::App app("Fastin fast .NET CORE project's initialization");
@@ -19,23 +17,22 @@ int main(int argc, char const* argv[])
     CLI::App* initProject = projectApi->add_subcommand("init-project", "Inicializa um projeto");
     std::string projectPath;
     std::string projectName;
-    ProjectType projectType;
-    std::string dockerImageTag;
+    project::ProjectType projectType;
     initProject->add_option("-p,--path", projectPath, "Path em que o projeto será inicializado")
         ->required();
     initProject->add_option("-n,--name", projectName, "Nome do projeto")
         ->required();
-    std::map<std::string, ProjectType> map
+    std::map<std::string, project::ProjectType> map
     {
-        {"webapi", ProjectType::WEBAPI},
-        {"worker", ProjectType::WORKER},
-        {"console", ProjectType::CONSOLE}
+        {"webapi", project::ProjectType::WEBAPI},
+        {"worker", project::ProjectType::WORKER},
+        {"console", project::ProjectType::CONSOLE}
     };
     initProject->add_option("-t,--type", projectType, "Tipo do projeto [webapi, worker, console]")
         ->required()
         ->transform(CLI::CheckedTransformer(map, CLI::ignore_case));
     initProject->callback([&]() {
-        ProjectApi projectApi(projectPath, projectName, projectType);
+        project::ProjectApi projectApi(projectPath, projectName, projectType);
         projectApi.initialize();
         projectApi.addLayersStructure();
         projectApi.createReferenceBetweenFolders();
@@ -44,8 +41,8 @@ int main(int argc, char const* argv[])
     CLI::App* dockerApi = app.add_subcommand("docker", "Api Docker");
     CLI::App* initDockerfile = dockerApi->add_subcommand("init-dockerfile", "Adiciona o dockerfile ao projeto");
     initDockerfile->callback([]() {
-        Project project = Project::loadFrom("./fastin.json");
-        DockerApi dockerApi(project);
+        project::Project project = project::Project::loadFrom("./fastin.json");
+        docker::DockerApi dockerApi(project);
         dockerApi.createDockerfile();
         });
     CLI11_PARSE(app, argc, argv);

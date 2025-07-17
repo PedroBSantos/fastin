@@ -1,5 +1,7 @@
 #include "../include/project/project_api.h"
 
+using namespace project;
+
 ProjectApi::ProjectApi(std::string projectPath, std::string projectName, ProjectType projectType)
 {
     this->projectPath = projectPath;

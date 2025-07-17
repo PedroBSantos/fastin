@@ -1,5 +1,7 @@
 #include "../include/project/project.h"
 
+using namespace project;
+
 Project::Project(
     std::string createdAt, 
     std::string runtimeVersion, 

@@ -12,20 +12,23 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-class DockerApi
+namespace docker
 {
-private:
-    Project project;
-    std::string createBaseStage();
-    std::string createBuildStage();
-    std::string createPublishStage();
-    std::string createFinalStage();
+    class DockerApi
+    {
+    private:
+        project::Project project;
+        std::string createBaseStage();
+        std::string createBuildStage();
+        std::string createPublishStage();
+        std::string createFinalStage();
 
-public:
-    DockerApi(Project project);
-    DockerApi(const DockerApi& dockerApi);
-    virtual ~DockerApi() = default;
-    void createDockerfile();
+    public:
+        DockerApi(project::Project project);
+        DockerApi(const DockerApi& dockerApi);
+        virtual ~DockerApi() = default;
+        void createDockerfile();
+    };
 };
 
 #endif
