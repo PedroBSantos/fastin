@@ -15,7 +15,8 @@ int main(int argc, char const* argv[])
     app.set_version_flag("--version", std::string(FASTIN_VERSION));
     app.set_help_flag("");
     app.set_help_all_flag("-h, --help");
-    CLI::App* initProject = app.add_subcommand("init-project", "Inicializa um projeto");
+    CLI::App* projectApi = app.add_subcommand("project", "Project Api");
+    CLI::App* initProject = projectApi->add_subcommand("init-project", "Inicializa um projeto");
     std::string projectPath;
     std::string projectName;
     ProjectType projectType;
