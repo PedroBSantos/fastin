@@ -49,7 +49,7 @@ jobs:
         cd libraries/yaml-cpp
         mkdir build
         cd build
-        cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
+        cmake -DYAML_BUILD_SHARED_LIBS=OFF .. && cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Replace dependencies path on CMakeLists file
       run: |
