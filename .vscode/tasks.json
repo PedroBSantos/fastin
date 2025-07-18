@@ -14,9 +14,12 @@
                 "-L${PUGIXML_HOME}/build",
                 "-I${NLOHMANN_HOME}/include",
                 "-I${CLI11_HOME}/include",
+                "-I${YAML_CPP_HOME}/include",
+                "-L${YAML_CPP_HOME}/build",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
-                "-lpugixml"
+                "-lpugixml",
+                "-lyaml-cpp"
             ],
             "options": {
                 "cwd": "${fileDirname}"

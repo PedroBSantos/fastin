@@ -24,6 +24,7 @@ jobs:
         git clone --branch=master https://github.com/zeux/pugixml.git
         git clone --branch=master https://github.com/nlohmann/json.git
         git clone --branch=main https://github.com/CLIUtils/CLI11.git
+        git clone --branch=master https://github.com/jbeder/yaml-cpp.git
 
     - name: Build spdlog dependency
       run: |
@@ -41,6 +42,14 @@ jobs:
         mkdir build
         cd build
         cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
+    
+    - name: Build yaml-cpp dependency
+      run: |
+        cd $HOME
+        cd libraries/yaml-cpp
+        mkdir build
+        cd build
+        cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Replace dependencies path on CMakeLists file
       run: |
@@ -49,10 +58,12 @@ jobs:
         NLOHMANN_HOME=$HOME/libraries/json
         PUGIXML_HOME=$HOME/libraries/pugixml
         CLI11_HOME=$HOME/libraries/CLI11
+        YAML_CPP_HOME=$HOME/libraries/yaml-cpp
         sed -i "s|\$ENV{SPDLOG_HOME}|${SPDLOG_HOME}|g" CMakeLists.txt
         sed -i "s|\$ENV{NLOHMANN_HOME}|${NLOHMANN_HOME}|g" CMakeLists.txt
         sed -i "s|\$ENV{PUGIXML_HOME}|${PUGIXML_HOME}|g" CMakeLists.txt
         sed -i "s|\$ENV{CLI11_HOME}|${CLI11_HOME}|g" CMakeLists.txt
+        sed -i "s|\$ENV{YAML_CPP_HOME}|${YAML_CPP_HOME}|g" CMakeLists.txt
 
     - name: Build
       run: |
