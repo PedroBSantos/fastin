@@ -6,6 +6,7 @@
 #include <string>
 #include "spdlog/spdlog.h"
 #include <yaml-cpp/yaml.h>
+#include "nlohmann/json.hpp"
 #include "../project/project.h"
 
 namespace fs = std::filesystem;
@@ -25,6 +26,7 @@ namespace gitlab
         project::Project project;
         YAML::Node createBuildJob(std::string branch);
         YAML::Node createDeployJob(std::string branch);
+        void generateAwsCliJsonInputFile();
     public:
         GitLab(project::Project project);
         GitLab(const GitLab& gitLab);

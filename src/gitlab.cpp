@@ -35,9 +35,10 @@ void GitLab::createPipelineForBranch(DeployBranch deployBranch)
     root[buildStageName] = buildStage;
     root[deployStageName] = deployStage;
     std::ofstream gitlabCiYmlFile(".gitlab-ci.yml", std::ios::app);
-    gitlabCiYmlFile << root << std::endl << std::endl;
+    gitlabCiYmlFile << root << std::endl;
     gitlabCiYmlFile.close();
     spdlog::info("Arquivo .gitlab-ci.yml gerado com sucesso");
+    this->generateAwsCliJsonInputFile();
     spdlog::info("Pipeline de build e deploy gerada com sucesso");
 }
 
@@ -162,4 +163,72 @@ YAML::Node GitLab::createDeployJob(std::string branch)
     deployStage["script"] = script;
     spdlog::info("Stage de deploy gerada");
     return deployStage;
+}
+
+void GitLab::generateAwsCliJsonInputFile()
+{
+    spdlog::info("Gerando o arquivo aws-cli-input.json");
+    if (fs::exists("aws-cli-input.json"))
+    {
+        spdlog::info("O arquivo aws-cli-input.json já existe no diretório atual");
+        return;
+    }
+    std::string awsCliInputJsonFilePath = "aws-cli-input.json";
+    nlohmann::json awsCliInputJson;
+    awsCliInputJson["ServiceName"] = "AWS_APPRUNNER_SERVICE_NAME";
+    awsCliInputJson["SourceConfiguration"] = {
+        { "AuthenticationConfiguration", {
+            { "AccessRoleArn", "AWS_IAM_ROLE" }
+        }},
+        { "AutoDeploymentsEnabled", false },
+        { "ImageRepository", {
+            { "ImageIdentifier", "AWS_ECR_IMAGE_URL" },
+            { "ImageConfiguration", {
+                { "Port", "8080" },
+                { "RuntimeEnvironmentVariables", {
+                    { "ASPNETCORE_ENVIRONMENT", "APP_ENVIRONMENT" }
+                }}
+            }},
+            { "ImageRepositoryType", "ECR" }
+        }}
+    };
+    awsCliInputJson["InstanceConfiguration"] = {
+        { "Cpu", "AWS_APPRUNNER_VCPU" },
+        { "Memory", "AWS_APPRUNNER_MEMORY" }
+    };
+    awsCliInputJson["ObservabilityConfiguration"] = {
+        { "ObservabilityEnabled", true },
+        { "ObservabilityConfigurationArn", "AWS_OBSERVABILITY_ARN" }
+    };
+    awsCliInputJson["NetworkConfiguration"] = {
+        { "EgressConfiguration", {
+            { "EgressType", "VPC" },
+            { "VpcConnectorArn", "AWS_APPRUNNER_VPC_CONNECTOR_ARN" }
+        }},
+        { "IngressConfiguration", {
+            { "IsPubliclyAccessible", true }
+        }},
+        { "IpAddressType", "IPV4" }
+    };
+    awsCliInputJson["HealthCheckConfiguration"] = {
+        { "HealthyThreshold", 1 },
+        { "Interval", 10 },
+        { "Protocol", "TCP" },
+        { "Timeout", 5 },
+        { "UnhealthyThreshold", 5 }
+    };
+    awsCliInputJson["Tags"] = nlohmann::json::array({
+        {
+            { "Key", "GitLabProjectUrl" },
+            { "Value", "GITLAB_PROJECT_URL" }
+        },
+        {
+            { "Key", "GitLabProjectBranch" },
+            { "Value", "GITLAB_PROJECT_BRANCH" }
+        }
+    });
+    std::ofstream lockFile(awsCliInputJsonFilePath);
+    lockFile << awsCliInputJson.dump(4);
+    lockFile.close();
+    spdlog::info("Arquivo aws-cli-input.json gerado com sucesso");
 }
