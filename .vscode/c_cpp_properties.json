@@ -7,7 +7,8 @@
                 "${SPDLOG_HOME}/include",     
                 "${NLOHMANN_HOME}/include/",
                 "${CLI11_HOME}/include/",
-                "${PUGIXML_HOME}/src"
+                "${PUGIXML_HOME}/src",
+                "${YAML_CPP_HOME}/include/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
