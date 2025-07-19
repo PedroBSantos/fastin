@@ -49,15 +49,15 @@ int main(int argc, char const* argv[])
         });
     CLI::App* gitLabApi = app.add_subcommand("gitlab", "GitLab Api");
     CLI::App* createPipeline = gitLabApi->add_subcommand("init-pipeline", "Inicializa uma pipeline de build e deploy para uma branch");
-    createPipeline->add_option("-b,--branch", pipelineBranch, "Branch que a pipeline ira rodar [develop, homolog, main]")
-        ->required()
-        ->transform(CLI::CheckedTransformer(projectTypesMap, CLI::ignore_case));
     std::map<std::string, gitlab::DeployBranch> deployBranchsMap
     {
         {"develop", gitlab::DeployBranch::DEVELOP},
         {"homolog", gitlab::DeployBranch::HOMOLOG},
         {"main", gitlab::DeployBranch::MAIN}
     };
+    createPipeline->add_option("-b,--branch", pipelineBranch, "Branch que a pipeline ira rodar [develop, homolog, main]")
+        ->required()
+        ->transform(CLI::CheckedTransformer(deployBranchsMap, CLI::ignore_case));
     createPipeline->callback([&]() {
         project::Project project = project::Project::loadFrom("./fastin.json");
         gitlab::GitLab gitlabApi(project);

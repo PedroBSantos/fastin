@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(fastin)
 
-add_executable(fastin src/main.cpp src/docker_api.cpp src/project_api.cpp src/project.cpp src/gitlab.cpp)
+add_executable(fastin src/main.cpp src/docker_api.cpp src/project_api.cpp src/project.cpp src/gitlab.cpp src/enum_utils.cpp)
 
 target_include_directories(fastin PRIVATE include)
 

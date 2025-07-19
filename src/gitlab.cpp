@@ -1,4 +1,5 @@
 #include "../include/gitlab/gitlab.h"
+#include "../include/utils/enum_utils.h"
 
 using namespace gitlab;
 
@@ -14,21 +15,7 @@ GitLab::GitLab(const GitLab& gitLab)
 
 void GitLab::createPipelineForBranch(DeployBranch deployBranch)
 {
-    std::string branch = "";
-    switch (deployBranch)
-    {
-    case DEVELOP:
-        branch = "develop";
-        break;
-    case HOMOLOG:
-        branch = "homolog";
-        break;
-    case MAIN:
-        branch = "main";
-        break;
-    default:
-        break;
-    }
+    std::string branch = utils::convertDeployBranchEnumToString(deployBranch);
     if (branch.empty())
     {
         spdlog::error("O nome da branch não pode ser vazio");
@@ -63,13 +50,17 @@ YAML::Node GitLab::createBuildJob(std::string branch)
     buildStage["tags"].push_back("linux");
     buildStage["only"].push_back(branch);
     YAML::Node script;
+    std::transform(branch.begin(), branch.end(), branch.begin(), ::toupper);
     script.push_back("true > $HOME/.aws/credentials");
-    script.push_back("aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID");
-    script.push_back("aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY");
-    script.push_back("aws configure set region $AWS_DEFAULT_REGION");
-    script.push_back("aws ecr create-repository --repository-name $AWS_APPRUNNER_SERVICE_NAME --region $AWS_DEFAULT_REGION --output json || true");
-    script.push_back("aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL");
-    script.push_back("AWS_ECR_IMAGE_URL=$AWS_ECR_URL_DEV_HOM/$AWS_APPRUNNER_SERVICE_NAME");
+    script.push_back("aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID_" + branch);
+    script.push_back("aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY_" + branch);
+    script.push_back("aws configure set region $AWS_DEFAULT_REGION_" + branch);
+    script.push_back("aws ecr create-repository --repository-name $AWS_APPRUNNER_SERVICE_NAME_" + branch 
+                   + " --region $AWS_DEFAULT_REGION_" + branch
+                   + " --output json || true");
+    script.push_back("aws ecr get-login-password --region $AWS_DEFAULT_REGION_" + branch
+                   + " | docker login --username AWS --password-stdin $AWS_ECR_URL_" + branch);
+    script.push_back("AWS_ECR_IMAGE_URL=$AWS_ECR_URL_" + branch + "/$AWS_APPRUNNER_SERVICE_NAME_" + branch);
     script.push_back("docker build -f \"Dockerfile\" -t $AWS_ECR_IMAGE_URL .");
     script.push_back("docker push $AWS_ECR_IMAGE_URL");
     buildStage["script"] = script;
@@ -79,6 +70,7 @@ YAML::Node GitLab::createBuildJob(std::string branch)
 
 YAML::Node GitLab::createDeployJob(std::string branch)
 {
+    std::string environment = utils::convertDeployBranchEnumToEnvironment(branch);
     spdlog::info("Gerando stage de deploy para a branch " + branch);
     YAML::Node deployStage;
     std::string buildStageName = "deploy-" + branch;
@@ -86,26 +78,86 @@ YAML::Node GitLab::createDeployJob(std::string branch)
     deployStage["tags"].push_back("linux");
     deployStage["only"].push_back(branch);
     YAML::Node beforeScript;
-    beforeScript.push_back("AWS_ECR_IMAGE_URL=$AWS_ECR_URL_DEV_HOM/$AWS_APPRUNNER_SERVICE_NAME\":latest\"");
+    std::transform(branch.begin(), branch.end(), branch.begin(), ::toupper);
+    beforeScript.push_back("AWS_ECR_IMAGE_URL=$AWS_ECR_URL_" + branch + "/$AWS_APPRUNNER_SERVICE_NAME_" + branch + "\":latest\"");
     beforeScript.push_back("GITLAB_PROJECT_URL=$CI_PROJECT_URL");
     beforeScript.push_back("GITLAB_PROJECT_BRANCH=$CI_COMMIT_BRANCH");
-    beforeScript.push_back("sed -i \"s|AWS_APPRUNNER_SERVICE_NAME|$AWS_APPRUNNER_SERVICE_NAME|g\" aws-cli-input.json");
-    beforeScript.push_back("sed -i \"s|AWS_IAM_ROLE|$AWS_IAM_ROLE|g\" aws-cli-input.json");
+    std::string sedCommand = "sed -i ";
+    sedCommand.append("\"")
+              .append("s|AWS_APPRUNNER_SERVICE_NAME|")
+              .append("$AWS_APPRUNNER_SERVICE_NAME_")
+              .append(branch)
+              .append("|g")
+              .append("\"")
+              .append(" aws-cli-input.json");
+    beforeScript.push_back(sedCommand);
+    sedCommand = "sed -i ";
+    sedCommand.append("\"")
+              .append("s|AWS_IAM_ROLE|")
+              .append("$AWS_IAM_ROLE_")
+              .append(branch)
+              .append("|g")
+              .append("\"")
+              .append(" aws-cli-input.json");
+    beforeScript.push_back(sedCommand);
+    sedCommand.clear();
+    sedCommand = "sed -i ";
+    sedCommand.append("\"")
+              .append("s|AWS_APPRUNNER_VCPU|")
+              .append("$AWS_APPRUNNER_VCPU_")
+              .append(branch)
+              .append("|g")
+              .append("\"")
+              .append(" aws-cli-input.json");
     beforeScript.push_back("sed -i \"s|AWS_ECR_IMAGE_URL|$AWS_ECR_IMAGE_URL|g\" aws-cli-input.json");
-    beforeScript.push_back("sed -i \"s|AWS_APPRUNNER_VCPU|$AWS_APPRUNNER_VCPU|g\" aws-cli-input.json");
-    beforeScript.push_back("sed -i \"s|AWS_APPRUNNER_MEMORY|$AWS_APPRUNNER_MEMORY|g\" aws-cli-input.json");
-    beforeScript.push_back("sed -i \"s|AWS_OBSERVABILITY_ARN|$AWS_OBSERVABILITY_ARN|g\" aws-cli-input.json");
-    beforeScript.push_back("sed -i \"s|AWS_APPRUNNER_VPC_CONNECTOR_ARN|$AWS_APPRUNNER_VPC_CONNECTOR_ARN|g\" aws-cli-input.json");
+    sedCommand.clear();
+    sedCommand = "sed -i ";
+    sedCommand.append("\"")
+              .append("s|AWS_APPRUNNER_MEMORY|")
+              .append("$AWS_APPRUNNER_MEMORY_")
+              .append(branch)
+              .append("|g")
+              .append("\"")
+              .append(" aws-cli-input.json");
+    beforeScript.push_back(sedCommand);
+    sedCommand.clear();
+    sedCommand = "sed -i ";
+    sedCommand.append("\"")
+              .append("s|AWS_OBSERVABILITY_ARN|")
+              .append("$AWS_OBSERVABILITY_ARN_")
+              .append(branch)
+              .append("|g")
+              .append("\"")
+              .append(" aws-cli-input.json");
+    beforeScript.push_back(sedCommand);
+    sedCommand.clear();
+    sedCommand = "sed -i ";
+    sedCommand.append("\"")
+              .append("s|AWS_APPRUNNER_VPC_CONNECTOR_ARN|")
+              .append("$AWS_APPRUNNER_VPC_CONNECTOR_ARN_")
+              .append(branch)
+              .append("|g")
+              .append("\"")
+              .append(" aws-cli-input.json");
+    beforeScript.push_back(sedCommand);
     beforeScript.push_back("sed -i \"s|GITLAB_PROJECT_URL|$GITLAB_PROJECT_URL|g\" aws-cli-input.json");
     beforeScript.push_back("sed -i \"s|GITLAB_PROJECT_BRANCH|$GITLAB_PROJECT_BRANCH|g\" aws-cli-input.json");
-    beforeScript.push_back("sed -i \"s|APP_ENVIRONMENT|Development|g\" aws-cli-input.json");
+    sedCommand.clear();
+    sedCommand = "sed -i ";
+    sedCommand.append("\"")
+              .append("s|APP_ENVIRONMENT|")
+              .append(environment)
+              .append("|g")
+              .append("\"")
+              .append(" aws-cli-input.json");
+    beforeScript.push_back(sedCommand);
     YAML::Node script;
     script.push_back("true > $HOME/.aws/credentials");
-    script.push_back("aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID");
-    script.push_back("aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY");
-    script.push_back("aws configure set region $AWS_DEFAULT_REGION");
+    script.push_back("aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID_" + branch);
+    script.push_back("aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY_" + branch);
+    script.push_back("aws configure set region $AWS_DEFAULT_REGION_" + branch);
     script.push_back("source ./.ci/commands.sh");
-    script.push_back("deploy $AWS_APPRUNNER_SERVICE_NAME");
+    script.push_back("deploy $AWS_APPRUNNER_SERVICE_NAME_" + branch);
     deployStage["before_script"] = beforeScript;
     deployStage["script"] = script;
     spdlog::info("Stage de deploy gerada");

@@ -2,6 +2,7 @@
 
 #define GITLAB_H
 
+#include <algorithm>
 #include <string>
 #include "spdlog/spdlog.h"
 #include <yaml-cpp/yaml.h>
