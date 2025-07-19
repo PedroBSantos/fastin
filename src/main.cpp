@@ -6,7 +6,7 @@
 #include "../include/gitlab/gitlab.h"
 #include "CLI/CLI.hpp"
 
-#define FASTIN_VERSION "2.0.0"
+#define FASTIN_VERSION "3.0.0"
 
 int main(int argc, char const* argv[])
 {
@@ -62,6 +62,12 @@ int main(int argc, char const* argv[])
         project::Project project = project::Project::loadFrom("./fastin.json");
         gitlab::GitLab gitlabApi(project);
         gitlabApi.createPipelineForBranch(pipelineBranch);
+    });
+    CLI::App* createDotCiFolder = gitLabApi->add_subcommand("init-dot-ci", "Inicializa e gera o conteúdo dos arquivos da pasta .ci");
+    createDotCiFolder->callback([]() {
+        project::Project project = project::Project::loadFrom("./fastin.json");
+        gitlab::GitLab gitlabApi(project);
+        gitlabApi.generateDotCIFolderContent();
     });
     CLI11_PARSE(app, argc, argv);
     return 0;

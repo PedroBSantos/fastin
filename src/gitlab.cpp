@@ -158,7 +158,7 @@ YAML::Node GitLab::createDeployJob(std::string branch)
     script.push_back("aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY_" + branch);
     script.push_back("aws configure set region $AWS_DEFAULT_REGION_" + branch);
     script.push_back("source ./.ci/commands.sh");
-    script.push_back("deploy $AWS_APPRUNNER_SERVICE_NAME_" + branch);
+    script.push_back("deploy $AWS_APPRUNNER_SERVICE_NAME_" + branch + " $AWS_DEFAULT_REGION_" + branch);
     deployStage["before_script"] = beforeScript;
     deployStage["script"] = script;
     spdlog::info("Stage de deploy gerada");
@@ -231,4 +231,28 @@ void GitLab::generateAwsCliJsonInputFile()
     lockFile << awsCliInputJson.dump(4);
     lockFile.close();
     spdlog::info("Arquivo aws-cli-input.json gerado com sucesso");
+}
+
+void GitLab::generateDotCIFolderContent()
+{
+    spdlog::info("Gerando arquivos .sh auxiliares cd CI/CD na pasta .ci");
+    if (!fs::exists(".ci"))
+        fs::create_directory(".ci");
+    if (!fs::exists(".ci/commands.sh"))
+    {
+        std::ofstream commandsFile(".ci/commands.sh");
+        std::string commandsFileContent = "source \"$PWD/.ci/library.sh\"\n\ndeploy() {\n  local result\n  local service_name\n  local service_arn\n  local service_url\n  service_name=$1\n  aws_region=$2\n  service_arn=$(contains_apprunner_service \"$service_name\" \"$aws_region\")\n  result=$?\n  if [ \"$service_arn\" != \"false\" ]; then\n      echo Serviço encontrado. Atualizando o serviço\n      aws apprunner start-deployment --service-arn \"$service_arn\"\n      echo Processo de atualização iniciado\n  else\n      echo Serviço não encontrado. Criando o serviço\n      response=$(aws apprunner create-service --cli-input-json file://aws-cli-input.json)\n      echo Criação 'do' serviço iniciada\n      service_url=$(echo \"$response\" | jq '.Service.ServiceUrl')\n      echo URL 'do' serviço \"$service_url\"\n  fi\n  return 0\n}\n";
+        commandsFile << commandsFileContent;
+        commandsFile.close();
+        spdlog::info("Arquivo .ci/commands.sh gerado com sucesso");
+    }
+    if (!fs::exists(".ci/library.sh"))
+    {
+        std::ofstream libraryFile(".ci/library.sh");
+        std::string listAppRunnerServices = "list_apprunner_services() {\n  local next_page_token=$1\n  local aws_region=$2\n  local response\n  response=$(aws apprunner list-services --region \"$aws_region\" --output json --next-token \"$next_page_token\")\n  echo \"$response\"\n}\n\n";
+        std::string containsAppRunnerServices = "contains_apprunner_service() {\n  local service_name=$1\n  local aws_region=$2\n  local next_page_token=\"""\"\n  local response\n  local has_services\n  local services\n  local contains\n  local service_arn\n  while :\n  do\n    response=$(list_apprunner_services \"$next_page_token\" \"$aws_region\")\n    has_services=$(jq 'select(.ServiceSummaryList != [])' <<< \"$response\")\n    if [ ! \"$has_services\" ]; then\n      break\n    fi\n    services=$(jq -r '.ServiceSummaryList' <<< \"$response\")\n    contains=$(jq --arg service \"$service_name\" 'any(.[]; .ServiceName == $service)' <<< \"$services\")\n    if [ \"$contains\" = true ]; then\n      service_arn=$(jq -r --arg name \"$service_name\" '.[] | select(.ServiceName == $name) | .ServiceArn' <<< \"$services\")\n      echo \"$service_arn\"\n      return 0\n    fi\n    next_page_token=$(jq -r '.NextToken' <<< \"$response\")\n  done\n  echo false\n  return 0\n}\n";
+        libraryFile << listAppRunnerServices + containsAppRunnerServices;
+        libraryFile.close();
+        spdlog::info("Arquivo .ci/library.sh gerado com sucesso");
+    }
 }

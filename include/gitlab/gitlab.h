@@ -32,6 +32,7 @@ namespace gitlab
         GitLab(const GitLab& gitLab);
         virtual ~GitLab() = default;
         void createPipelineForBranch(DeployBranch deployBranch);
+        void generateDotCIFolderContent();
     };
 };
 #endif
