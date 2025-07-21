@@ -63,11 +63,11 @@ jobs:
         $PUGIXML_HOME = "$HOME/libraries/pugixml"
         $CLI11_HOME = "$HOME/libraries/CLI11"
         $YAML_CPP_HOME = "$HOME/libraries/yaml-cpp"
-        sed -i "s#\$ENV{SPDLOG_HOME}#$SPDLOG_HOME#g" CMakeLists.txt
-        sed -i "s#\$ENV{NLOHMANN_HOME}#$NLOHMANN_HOME#g" CMakeLists.txt
-        sed -i "s#\$ENV{PUGIXML_HOME}#$PUGIXML_HOME#g" CMakeLists.txt
-        sed -i "s#\$ENV{CLI11_HOME}#$CLI11_HOME#g" CMakeLists.txt
-        sed -i "s#\$ENV{YAML_CPP_HOME}#$YAML_CPP_HOME#g" CMakeLists.txt
+        sed -i "s#$\ENV{SPDLOG_HOME}#$SPDLOG_HOME#g" CMakeLists.txt
+        sed -i "s#$\ENV{NLOHMANN_HOME}#$NLOHMANN_HOME#g" CMakeLists.txt
+        sed -i "s#$\ENV{PUGIXML_HOME}#$PUGIXML_HOME#g" CMakeLists.txt
+        sed -i "s#$\ENV{CLI11_HOME}#$CLI11_HOME#g" CMakeLists.txt
+        sed -i "s#$\ENV{YAML_CPP_HOME}#$YAML_CPP_HOME#g" CMakeLists.txt
 
     - name: Build
       run: |
