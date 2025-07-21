@@ -62,7 +62,7 @@ jobs:
         $NLOHMANN_HOME = "$HOME/libraries/json" -replace '\\', '/'
         $PUGIXML_HOME = "$HOME/libraries/pugixml" -replace '\\', '/'
         $CLI11_HOME = "$HOME/libraries/CLI11" -replace '\\', '/'
-        $YAML_CPP_HOME = "$HOME/libraries/yaml-cpp"
+        $YAML_CPP_HOME = "$HOME/libraries/yaml-cpp" -replace '\\', '/'
         sed -i "s#$\ENV{SPDLOG_HOME}#$SPDLOG_HOME#g" CMakeLists.txt
         sed -i "s#$\ENV{NLOHMANN_HOME}#$NLOHMANN_HOME#g" CMakeLists.txt
         sed -i "s#$\ENV{PUGIXML_HOME}#$PUGIXML_HOME#g" CMakeLists.txt
