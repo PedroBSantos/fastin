@@ -1,8 +1,8 @@
-name: CMake on a single platform
+name: Windows Platform Workflow
 
 on:
   push:
-    branches: [ "master", "ci/configura-build-windows" ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
