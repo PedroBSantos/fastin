@@ -19,4 +19,7 @@ target_include_directories(fastin PRIVATE $ENV{CLI11_HOME}/include)
 
 target_include_directories(fastin PRIVATE $ENV{YAML_CPP_HOME}/include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_directories(fastin PRIVATE $ENV{YAML_CPP_HOME}/build)
+if (WIN32)
+    target_compile_definitions(fastin PRIVATE YAML_CPP_STATIC_DEFINE)
+endif()
 target_link_libraries(fastin PRIVATE yaml-cpp)
