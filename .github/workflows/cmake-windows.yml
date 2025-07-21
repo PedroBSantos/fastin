@@ -1,0 +1,78 @@
+name: CMake on a single platform
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:    
+  build:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get Dependencies
+      run: |
+        choco install git
+        choco install sed
+        cd $HOME
+        mkdir libraries
+        cd libraries
+        git clone --branch=v1.x https://github.com/gabime/spdlog.git
+        git clone --branch=master https://github.com/zeux/pugixml.git
+        git clone --branch=master https://github.com/nlohmann/json.git
+        git clone --branch=main https://github.com/CLIUtils/CLI11.git
+        git clone --branch=master https://github.com/jbeder/yaml-cpp.git
+
+    - name: Build spdlog dependency
+      run: |
+        cd $HOME
+        cd libraries/spdlog
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" 
+        cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: Build pugixml dependency
+      run: |
+        cd $HOME
+        cd libraries/pugixml
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" 
+        cmake --build . --config ${{env.BUILD_TYPE}}
+    
+    - name: Build yaml-cpp dependency
+      run: |
+        cd $HOME
+        cd libraries/yaml-cpp
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=OFF
+        cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: Replace dependencies path on CMakeLists file
+      run: |
+        cd ${{github.workspace}}
+        $SPDLOG_HOME = "$HOME\libraries\spdlog"
+        $NLOHMANN_HOME = "$HOME\libraries\json"
+        $PUGIXML_HOME = "$HOME\libraries\pugixml"
+        $CLI11_HOME = "$HOME\libraries\CLI11"
+        $YAML_CPP_HOME = "$HOME\libraries\yaml-cpp"
+        sed -i "s|\$ENV{SPDLOG_HOME}|${SPDLOG_HOME}|g" CMakeLists.txt
+        sed -i "s|\$ENV{NLOHMANN_HOME}|${NLOHMANN_HOME}|g" CMakeLists.txt
+        sed -i "s|\$ENV{PUGIXML_HOME}|${PUGIXML_HOME}|g" CMakeLists.txt
+        sed -i "s|\$ENV{CLI11_HOME}|${CLI11_HOME}|g" CMakeLists.txt
+        sed -i "s|\$ENV{YAML_CPP_HOME}|${YAML_CPP_HOME}|g" CMakeLists.txt
+
+    - name: Build
+      run: |
+        cd ${{github.workspace}}
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" 
+        cmake --build . --config ${{env.BUILD_TYPE}}
