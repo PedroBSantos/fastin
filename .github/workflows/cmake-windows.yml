@@ -58,10 +58,10 @@ jobs:
     - name: Replace dependencies path on CMakeLists file
       run: |
         cd ${{github.workspace}}
-        $SPDLOG_HOME = "$HOME/libraries/spdlog"
-        $NLOHMANN_HOME = "$HOME/libraries/json"
-        $PUGIXML_HOME = "$HOME/libraries/pugixml"
-        $CLI11_HOME = "$HOME/libraries/CLI11"
+        $SPDLOG_HOME = "$HOME/libraries/spdlog" -replace '\\', '/'
+        $NLOHMANN_HOME = "$HOME/libraries/json" -replace '\\', '/'
+        $PUGIXML_HOME = "$HOME/libraries/pugixml" -replace '\\', '/'
+        $CLI11_HOME = "$HOME/libraries/CLI11" -replace '\\', '/'
         $YAML_CPP_HOME = "$HOME/libraries/yaml-cpp"
         sed -i "s#$\ENV{SPDLOG_HOME}#$SPDLOG_HOME#g" CMakeLists.txt
         sed -i "s#$\ENV{NLOHMANN_HOME}#$NLOHMANN_HOME#g" CMakeLists.txt
