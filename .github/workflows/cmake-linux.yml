@@ -2,15 +2,38 @@ name: Linux Platform Workflow
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "ci/configura-geracao-tags" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "ci/configura-geracao-tags" ]
 
 env:
   BUILD_TYPE: Release
 
 jobs:    
+  verify-version:
+    runs-on: ubuntu-latest
+    outputs:
+      FASTIN_VERSION: ${{ steps.version.outputs.FASTIN_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify version
+        id: version
+        run: |
+          DEFINE_VERSION=$(cat src/main.cpp | grep "define FASTIN_VERSION")
+          FASTIN_VERSION=v$(echo $DEFINE_VERSION | grep "[0-9].[0-9].[0-9]" -o)
+          if [[ -n "$(git ls-remote origin refs/tags/$FASTIN_VERSION)" ]]; then
+            echo Tag "$FASTIN_VERSION" already exists in repository. Make another merge changing the version
+            exit 1
+          else
+            echo Tag "$FASTIN_VERSION" is valid.
+            echo "FASTIN_VERSION=v$(echo $DEFINE_VERSION | grep "[0-9].[0-9].[0-9]" -o)" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
   build:
+    needs: [verify-version]
+    env:
+      FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -71,3 +94,17 @@ jobs:
         mkdir build
         cd build
         cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
+        mv fastin fastin-${{env.FASTIN_VERSION}}
+
+  create-release:
+    needs: [verify-version, build]
+    env:
+      FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create tag
+        run: |
+          git tag --create ${{env.FASTIN_VERSION}}
+          git push origin tag ${{env.FASTIN_VERSION}}
