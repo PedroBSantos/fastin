@@ -10,7 +10,30 @@ env:
   BUILD_TYPE: Release
 
 jobs:    
+  verify-version:
+    runs-on: ubuntu-latest
+    outputs:
+      FASTIN_VERSION: ${{ steps.version.outputs.FASTIN_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify version
+        id: version
+        run: |
+          DEFINE_VERSION=$(cat src/main.cpp | grep "define FASTIN_VERSION")
+          FASTIN_VERSION=v$(echo $DEFINE_VERSION | grep "[0-9].[0-9].[0-9]" -o)
+          if [[ -n "$(git ls-remote origin refs/tags/$FASTIN_VERSION)" ]]; then
+            echo Tag "$FASTIN_VERSION" already exists in repository. Make another merge changing the version
+            exit 1
+          else
+            echo Tag "$FASTIN_VERSION" is valid.
+            echo "FASTIN_VERSION=v$(echo $DEFINE_VERSION | grep "[0-9].[0-9].[0-9]" -o)" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
   build:
+    needs: [verify-version]
+    env:
+      FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -71,3 +94,60 @@ jobs:
         mkdir build
         cd build
         cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
+        mv fastin fastin-${{env.FASTIN_VERSION}}
+
+    - name: Upload Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: fastin-${{env.FASTIN_VERSION}}
+        path: ${{github.workspace}}/build/fastin-${{env.FASTIN_VERSION}}
+        retention-days: 1
+
+  create-tag:
+    needs: [verify-version, build]
+    permissions:
+      contents: write
+    env:
+      FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create tag
+        run: |
+          git tag --create ${{env.FASTIN_VERSION}}
+          git push origin tag ${{env.FASTIN_VERSION}}
+  
+  create-release:
+    needs: [verify-version, build, create-tag]
+    permissions:
+      contents: write
+    env:
+      FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fastin-${{env.FASTIN_VERSION}}
+          path: ${{github.workspace}}
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: create_release
+        with:
+          tag_name: ${{env.FASTIN_VERSION}}
+          release_name: Release ${{env.FASTIN_VERSION}}
+          draft: false
+          prerelease: false
+      - name: Upload release build
+        uses: actions/upload-release-asset@v1
+        id: upload_release_build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: ${{github.workspace}}/fastin-${{env.FASTIN_VERSION}}
+          asset_name: fastin-${{env.FASTIN_VERSION}}-linux
+          asset_content_type: application/octet-stream
