@@ -19,8 +19,8 @@ jobs:
       - name: Verify version
         id: version
         run: |
-          $DEFINE_VERSION = $(cat src/main.cpp | grep "define FASTIN_VERSION")
-          $FASTIN_VERSION = v$(echo $DEFINE_VERSION | grep "[0-9].[0-9].[0-9]" -o)
+          DEFINE_VERSION=$(cat src/main.cpp | grep "define FASTIN_VERSION")
+          FASTIN_VERSION=v$(echo $DEFINE_VERSION | grep "[0-9].[0-9].[0-9]" -o)
           if [[ -n "$(git ls-remote origin refs/tags/$FASTIN_VERSION)" ]]; then
             echo Tag "$FASTIN_VERSION" already exists in repository. Make another merge changing the version
             exit 1
@@ -99,13 +99,13 @@ jobs:
         cd build
         cmake .. -G "MinGW Makefiles" 
         cmake --build . --config ${{env.BUILD_TYPE}}
-        mv fastin fastin-${{env.FASTIN_VERSION}}
+        mv fastin.exe fastin-${{env.FASTIN_VERSION}}.exe
 
     - name: Upload Build
       uses: actions/upload-artifact@v4
       with:
-        name: fastin-${{env.FASTIN_VERSION}}
-        path: ${{github.workspace}}/build/fastin-${{env.FASTIN_VERSION}}
+        name: fastin-${{env.FASTIN_VERSION}}.exe
+        path: ${{github.workspace}}/build/fastin-${{env.FASTIN_VERSION}}.exe
         retention-days: 1
 
   create-tag:
@@ -134,7 +134,7 @@ jobs:
       - name: Download release build artifact
         uses: actions/download-artifact@v4
         with:
-          name: fastin-${{env.FASTIN_VERSION}}
+          name: fastin-${{env.FASTIN_VERSION}}.exe
           path: ${{github.workspace}}
       - name: Create release
         uses: actions/create-release@v1
@@ -153,6 +153,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{github.workspace}}/fastin-${{env.FASTIN_VERSION}}
-          asset_name: fastin-${{env.FASTIN_VERSION}}-windows
+          asset_path: ${{github.workspace}}/fastin-${{env.FASTIN_VERSION}}.exe
+          asset_name: fastin-${{env.FASTIN_VERSION}}-windows.exe
           asset_content_type: application/octet-stream
