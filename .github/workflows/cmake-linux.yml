@@ -96,6 +96,13 @@ jobs:
         cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
         mv fastin fastin-${{env.FASTIN_VERSION}}
 
+    - name: Upload Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: fastin-${{env.FASTIN_VERSION}}
+        path: ${{github.workspace}}/build/fastin-${{env.FASTIN_VERSION}}
+        retention-days: 1
+
   create-tag:
     needs: [verify-version, build]
     permissions:
@@ -119,6 +126,11 @@ jobs:
       FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
     runs-on: ubuntu-latest
     steps:
+      - name: Download release build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fastin-${{env.FASTIN_VERSION}}
+          path: ${{github.workspace}}
       - name: Create release
         uses: actions/create-release@v1
         env:
@@ -136,7 +148,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ./build/fastin-${{env.FASTIN_VERSION}}
+          asset_path: ${{github.workspace}}/fastin-${{env.FASTIN_VERSION}}
           asset_name: fastin-${{env.FASTIN_VERSION}}
           asset_content_type: application/octet-stream
 
