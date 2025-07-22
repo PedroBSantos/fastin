@@ -98,6 +98,8 @@ jobs:
 
   create-release:
     needs: [verify-version, build]
+    permissions:
+      contents: write
     env:
       FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
     runs-on: ubuntu-latest
