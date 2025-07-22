@@ -121,6 +121,8 @@ jobs:
     steps:
       - name: Create release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: create_release
         with:
           tag_name: ${{ github.ref }}
@@ -129,6 +131,9 @@ jobs:
           prerelease: false
       - name: Upload release build
         uses: actions/upload-release-asset@v1
+        id: upload_release_build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
           asset_path: ./build/fastin-${{env.FASTIN_VERSION}}
