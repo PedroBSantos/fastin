@@ -2,9 +2,9 @@ name: Windows Platform Workflow
 
 on:
   push:
-    branches: [ "master", "ci/configura-geracao-tags" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "master", "ci/configura-geracao-tags" ]
+    branches: [ "master" ]
 
 env:
   BUILD_TYPE: Release
