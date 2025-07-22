@@ -96,7 +96,7 @@ jobs:
         cmake .. && cmake --build . --config ${{env.BUILD_TYPE}}
         mv fastin fastin-${{env.FASTIN_VERSION}}
 
-  create-release:
+  create-tag:
     needs: [verify-version, build]
     permissions:
       contents: write
@@ -110,3 +110,28 @@ jobs:
         run: |
           git tag --create ${{env.FASTIN_VERSION}}
           git push origin tag ${{env.FASTIN_VERSION}}
+  
+  create-release:
+    needs: [verify-version, build, create-tag]
+    permissions:
+      contents: write
+    env:
+      FASTIN_VERSION: ${{ needs.verify-version.outputs.FASTIN_VERSION }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload release build
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: ./build/fastin-${{env.FASTIN_VERSION}}
+          asset_name: fastin-${{env.FASTIN_VERSION}}
+          asset_content_type: application/octet-stream
+
