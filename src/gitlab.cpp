@@ -260,7 +260,8 @@ void GitLab::generateDotCIFolderContent()
         commandsFile << commandsFileContent;
         commandsFile.close();
         spdlog::info("Arquivo .ci/commands.sh gerado com sucesso");
-    }
+    } else
+        spdlog::info("O arquivo commands.sh já está presente na pasta .ci");
     if (!fs::exists(".ci/library.sh"))
     {
         std::ofstream libraryFile(".ci/library.sh");
@@ -269,5 +270,6 @@ void GitLab::generateDotCIFolderContent()
         libraryFile << listAppRunnerServices + containsAppRunnerServices;
         libraryFile.close();
         spdlog::info("Arquivo .ci/library.sh gerado com sucesso");
-    }
+    } else
+        spdlog::info("O arquivo library.sh já está presente na pasta .ci");
 }
