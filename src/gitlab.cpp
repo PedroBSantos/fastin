@@ -16,6 +16,11 @@ GitLab::GitLab(const GitLab& gitLab)
 void GitLab::createPipelineForBranch(DeployBranch deployBranch)
 {
     std::string branch = utils::convertDeployBranchEnumToString(deployBranch);
+    if (this->project.isConsole())
+    {
+        spdlog::error("Não é possível criar pipeline de CI para projetos do tipo CONSOLE");
+        return;
+    }
     if (branch.empty())
     {
         spdlog::error("O nome da branch não pode ser vazio");
@@ -24,6 +29,11 @@ void GitLab::createPipelineForBranch(DeployBranch deployBranch)
     if (!fs::exists("fastin.json"))
     {
         spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
+        return;
+    }
+    if (this->project.containsCiPipelineForBranch(branch))
+    {
+        spdlog::error("Já existe uma pipeline de CI configurada para a branch " + branch);
         return;
     }
     spdlog::info("Gerando pipeline de build e deploy para a branch " + branch);
@@ -39,6 +49,8 @@ void GitLab::createPipelineForBranch(DeployBranch deployBranch)
     gitlabCiYmlFile.close();
     spdlog::info("Arquivo .gitlab-ci.yml gerado com sucesso");
     this->generateAwsCliJsonInputFile();
+    this->project.addCiBranch(branch);
+    project::Project::saveProject(this->project, "./fastin.json");
     spdlog::info("Pipeline de build e deploy gerada com sucesso");
 }
 
@@ -168,6 +180,11 @@ YAML::Node GitLab::createDeployJob(std::string branch)
 void GitLab::generateAwsCliJsonInputFile()
 {
     spdlog::info("Gerando o arquivo aws-cli-input.json");
+    if (this->project.isConsole())
+    {
+        spdlog::error("Não é possível gerar o arquivo aws-cli-input.json para projetos do tipo CONSOLE");
+        return;
+    }
     if (fs::exists("aws-cli-input.json"))
     {
         spdlog::info("O arquivo aws-cli-input.json já existe no diretório atual");
@@ -236,6 +253,16 @@ void GitLab::generateAwsCliJsonInputFile()
 void GitLab::generateDotCIFolderContent()
 {
     spdlog::info("Gerando arquivos .sh auxiliares cd CI/CD na pasta .ci");
+    if (!fs::exists("fastin.json"))
+    {
+        spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
+        return;
+    }
+    if (this->project.isConsole())
+    {
+        spdlog::error("Não é possível gerar a pasta .ci e os arquivos commands.sh e library.sh para projetos do tipo CONSOLE");
+        return;
+    }
     if (!fs::exists(".ci"))
         fs::create_directory(".ci");
     if (!fs::exists(".ci/commands.sh"))
@@ -245,7 +272,8 @@ void GitLab::generateDotCIFolderContent()
         commandsFile << commandsFileContent;
         commandsFile.close();
         spdlog::info("Arquivo .ci/commands.sh gerado com sucesso");
-    }
+    } else
+        spdlog::info("O arquivo commands.sh já está presente na pasta .ci");
     if (!fs::exists(".ci/library.sh"))
     {
         std::ofstream libraryFile(".ci/library.sh");
@@ -254,5 +282,6 @@ void GitLab::generateDotCIFolderContent()
         libraryFile << listAppRunnerServices + containsAppRunnerServices;
         libraryFile.close();
         spdlog::info("Arquivo .ci/library.sh gerado com sucesso");
-    }
+    } else
+        spdlog::info("O arquivo library.sh já está presente na pasta .ci");
 }
