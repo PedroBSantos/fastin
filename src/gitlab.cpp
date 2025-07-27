@@ -173,6 +173,11 @@ YAML::Node GitLab::createDeployJob(std::string branch)
 void GitLab::generateAwsCliJsonInputFile()
 {
     spdlog::info("Gerando o arquivo aws-cli-input.json");
+    if (this->project.isConsole())
+    {
+        spdlog::error("Não é possível gerar o arquivo aws-cli-input.json para projetos do tipo CONSOLE");
+        return;
+    }
     if (fs::exists("aws-cli-input.json"))
     {
         spdlog::info("O arquivo aws-cli-input.json já existe no diretório atual");
