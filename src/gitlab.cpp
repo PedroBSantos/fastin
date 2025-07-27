@@ -246,6 +246,11 @@ void GitLab::generateAwsCliJsonInputFile()
 void GitLab::generateDotCIFolderContent()
 {
     spdlog::info("Gerando arquivos .sh auxiliares cd CI/CD na pasta .ci");
+    if (this->project.isConsole())
+    {
+        spdlog::error("Não é possível gerar a pasta .ci e os arquivos commands.sh e library.sh para projetos do tipo CONSOLE");
+        return;
+    }
     if (!fs::exists(".ci"))
         fs::create_directory(".ci");
     if (!fs::exists(".ci/commands.sh"))
