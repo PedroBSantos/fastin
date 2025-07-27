@@ -5,6 +5,8 @@ add_executable(fastin src/main.cpp src/docker_api.cpp src/project_api.cpp src/pr
 
 target_include_directories(fastin PRIVATE include)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+
 target_include_directories(fastin PRIVATE $ENV{SPDLOG_HOME}/include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_directories(fastin PRIVATE $ENV{SPDLOG_HOME}/build)
 target_link_libraries(fastin PRIVATE spdlog)
@@ -19,4 +21,7 @@ target_include_directories(fastin PRIVATE $ENV{CLI11_HOME}/include)
 
 target_include_directories(fastin PRIVATE $ENV{YAML_CPP_HOME}/include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_directories(fastin PRIVATE $ENV{YAML_CPP_HOME}/build)
+if (WIN32)
+    target_compile_definitions(fastin PRIVATE YAML_CPP_STATIC_DEFINE)
+endif()
 target_link_libraries(fastin PRIVATE yaml-cpp)
