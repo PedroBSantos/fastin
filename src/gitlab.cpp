@@ -31,6 +31,11 @@ void GitLab::createPipelineForBranch(DeployBranch deployBranch)
         spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
         return;
     }
+    if (this->project.containsCiPipelineForBranch(branch))
+    {
+        spdlog::error("Já existe uma pipeline de CI configurada para a branch " + branch);
+        return;
+    }
     spdlog::info("Gerando pipeline de build e deploy para a branch " + branch);
     YAML::Node root;
     std::string buildStageName = "build-" + branch;
@@ -44,6 +49,8 @@ void GitLab::createPipelineForBranch(DeployBranch deployBranch)
     gitlabCiYmlFile.close();
     spdlog::info("Arquivo .gitlab-ci.yml gerado com sucesso");
     this->generateAwsCliJsonInputFile();
+    this->project.addCiBranch(branch);
+    project::Project::saveProject(this->project, "./fastin.json");
     spdlog::info("Pipeline de build e deploy gerada com sucesso");
 }
 

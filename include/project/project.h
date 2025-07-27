@@ -6,6 +6,8 @@
 #include "nlohmann/json.hpp"
 #include "spdlog/spdlog.h"
 #include <fstream>
+#include <vector>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 
@@ -27,9 +29,10 @@ namespace project
         std::string name;
         ProjectType type;
         bool initialized;
-        Project(std::string createdAt, std::string runtimeVersion, std::string entrypoint, std::string name, ProjectType type);
+        std::vector<std::string> ciBranchs;
 
     public:
+        Project(std::string createdAt, std::string runtimeVersion, std::string entrypoint, std::string name, ProjectType type);
         Project() = default;
         virtual ~Project() = default;
         Project(const Project& project);
@@ -41,8 +44,11 @@ namespace project
         bool isWorker();
         bool isConsole();
         bool isWebApi();
-        static Project loadFrom(std::string fastinFile);
         bool isInitialized();
+        bool containsCiPipelineForBranch(std::string branch);
+        void addCiBranch(std::string branch);
+        static Project loadFrom(std::string fastinFile);
+        static void saveProject(const Project& project, std::string fastinFile);
     };
 };
 
