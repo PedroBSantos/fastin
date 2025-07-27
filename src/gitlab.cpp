@@ -16,6 +16,11 @@ GitLab::GitLab(const GitLab& gitLab)
 void GitLab::createPipelineForBranch(DeployBranch deployBranch)
 {
     std::string branch = utils::convertDeployBranchEnumToString(deployBranch);
+    if (this->project.isConsole())
+    {
+        spdlog::error("Não é possível criar pipeline de CI para projetos do tipo CONSOLE");
+        return;
+    }
     if (branch.empty())
     {
         spdlog::error("O nome da branch não pode ser vazio");
