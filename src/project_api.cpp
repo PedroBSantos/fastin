@@ -51,7 +51,7 @@ void ProjectApi::markAsInitialized()
     struct tm datetime = *localtime(&timestamp);
     char currentDate[90];
     strftime(currentDate, 90, "%Y-%m-%d %H:%M:%S", &datetime);
-    std::string lockFilePath = projectFullPath + "/fastin.json";
+    std::string fastinFile = projectFullPath + "/fastin.json";
     std::string projectEntrypoint = "";
     switch (this->projectType)
     {
@@ -71,15 +71,8 @@ void ProjectApi::markAsInitialized()
     pugi::xpath_node targetFrameworkNode = doc.select_node("//PropertyGroup/TargetFramework");
     std::string targetFramework = targetFrameworkNode.node().child_value();
     std::string dotnetVersion = targetFramework.substr(3, 5);
-
-    nlohmann::json projectJson = { { "projectName", this->projectName },
-                                   { "projectType", this->projectType },
-                                   { "projectEntrypoint", projectEntrypoint },
-                                   { "dotnetVersion", dotnetVersion },
-                                   { "createdAt", currentDate } };
-    std::ofstream lockFile(lockFilePath);
-    lockFile << projectJson.dump(4);
-    lockFile.close();
+    Project project(currentDate, dotnetVersion, projectEntrypoint, projectName, projectType);
+    Project::saveProject(project, fastinFile);
     spdlog::info("Arquivo fastin.json gerado com sucesso");
 }
 
