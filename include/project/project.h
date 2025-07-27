@@ -7,6 +7,8 @@
 #include "spdlog/spdlog.h"
 #include <fstream>
 
+namespace fs = std::filesystem;
+
 namespace project
 {
     enum ProjectType
@@ -24,6 +26,7 @@ namespace project
         std::string entrypoint;
         std::string name;
         ProjectType type;
+        bool initialized;
         Project(std::string createdAt, std::string runtimeVersion, std::string entrypoint, std::string name, ProjectType type);
 
     public:
@@ -39,6 +42,7 @@ namespace project
         bool isConsole();
         bool isWebApi();
         static Project loadFrom(std::string fastinFile);
+        bool isInitialized();
     };
 };
 

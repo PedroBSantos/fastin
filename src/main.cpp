@@ -44,6 +44,8 @@ int main(int argc, char const* argv[])
     CLI::App* initDockerfile = dockerApi->add_subcommand("init-dockerfile", "Adiciona o dockerfile ao projeto");
     initDockerfile->callback([]() {
         project::Project project = project::Project::loadFrom("./fastin.json");
+        if (!project.isInitialized())
+            return;
         docker::DockerApi dockerApi(project);
         dockerApi.createDockerfile();
         });
@@ -60,12 +62,16 @@ int main(int argc, char const* argv[])
         ->transform(CLI::CheckedTransformer(deployBranchsMap, CLI::ignore_case));
     createPipeline->callback([&]() {
         project::Project project = project::Project::loadFrom("./fastin.json");
+        if (!project.isInitialized())
+            return;
         gitlab::GitLab gitlabApi(project);
         gitlabApi.createPipelineForBranch(pipelineBranch);
     });
     CLI::App* createDotCiFolder = gitLabApi->add_subcommand("init-dot-ci", "Inicializa e gera o conteúdo dos arquivos da pasta .ci");
     createDotCiFolder->callback([]() {
         project::Project project = project::Project::loadFrom("./fastin.json");
+        if (!project.isInitialized())
+            return;
         gitlab::GitLab gitlabApi(project);
         gitlabApi.generateDotCIFolderContent();
     });

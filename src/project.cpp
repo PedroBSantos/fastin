@@ -14,6 +14,7 @@ Project::Project(
     this->entrypoint = entrypoint;
     this->name = name;
     this->type = type;
+    this->initialized = true;
 }
 
 Project::Project(const Project& project)
@@ -23,11 +24,17 @@ Project::Project(const Project& project)
     this->entrypoint = project.entrypoint;
     this->name = project.name;
     this->type = project.type;
+    this->initialized = project.initialized;
 }
 
 Project Project::loadFrom(std::string fastinFile)
 {
     spdlog::info("Carregando dados do projeto a partir do arquivo " + fastinFile);
+    if (!fs::exists("fastin.json"))
+    {
+        spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
+        return Project();
+    }
     std::ifstream file(fastinFile);
     nlohmann::json projectJson;
     file >> projectJson;
@@ -79,3 +86,5 @@ bool Project::isWebApi()
     std::string projectType = this->getType();
     return "WEBAPI" == projectType;
 }
+
+bool Project::isInitialized() { return this->initialized; }
