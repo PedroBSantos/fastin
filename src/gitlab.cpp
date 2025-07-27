@@ -246,6 +246,11 @@ void GitLab::generateAwsCliJsonInputFile()
 void GitLab::generateDotCIFolderContent()
 {
     spdlog::info("Gerando arquivos .sh auxiliares cd CI/CD na pasta .ci");
+    if (!fs::exists("fastin.json"))
+    {
+        spdlog::error("Não foi possível encontrar o arquivo fastin.json no diretório atual");
+        return;
+    }
     if (this->project.isConsole())
     {
         spdlog::error("Não é possível gerar a pasta .ci e os arquivos commands.sh e library.sh para projetos do tipo CONSOLE");
