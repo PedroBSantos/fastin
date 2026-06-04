@@ -6,7 +6,7 @@
 #include "../include/gitlab/gitlab.h"
 #include "CLI/CLI.hpp"
 
-#define FASTIN_VERSION "3.0.1"
+#define FASTIN_VERSION "3.0.2"
 
 int main(int argc, char const* argv[])
 {
